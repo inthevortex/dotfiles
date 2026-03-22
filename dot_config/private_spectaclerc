@@ -1,0 +1,13 @@
+[Annotations]
+freehandStrokeColor=85,170,255
+
+[GuiConfig]
+captureMode=0
+
+[ImageSave]
+lastImageSaveAsLocation=file:///home/inthevortex/Downloads/Screenshot_20260319_214856.png
+lastImageSaveLocation=file:///home/inthevortex/Downloads/Screenshot_20260319_214856.png
+translatedScreenshotsFolder=Screenshots
+
+[VideoSave]
+translatedScreencastsFolder=Screencasts

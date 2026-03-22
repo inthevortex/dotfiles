@@ -7,10 +7,13 @@
 
 {{- $isLaptop := promptBoolOnce . "isLaptop" "Is this a laptop (t/f)?" -}}
 
+{{- $hostName := promptStringOnce . "hostName" "Enter system hostname" -}}
+
 [data]
     os = {{ $os | quote }}
     osid = {{ $osID | quote }}
     isLaptop = {{ $isLaptop }}
+    hostName = {{ $hostName | quote }}
 
 [keepassxc]
     database = "/home/inthevortex/Documents/KeePassXC/keepass-vault/inthevortex.kdbx"

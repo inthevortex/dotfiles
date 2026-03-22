@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+
+# Ensure popup has access to all your installed tools
+{{- if eq .chezmoi.os "darwin" }}
+# Add macOS Homebrew path for Apple Silicon
+export PATH=$PATH:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin
+{{- else }}
+export PATH=$PATH:$HOME/.local/bin:/usr/local/bin:/usr/bin
+{{- end }}
+
+# Set up logging so we can see exactly why VSCode is failing
+LOG_FILE="$HOME/.tmux_ssh_debug.log"
+echo "--- SSH Jumper Triggered at $(date) ---" >> "$LOG_FILE"
+
+# Define custom VSCode default directories for specific hosts
+declare -A VSCODE_PATHS=(
+    ["staging-server"]="/opt/app/backend"
+    ["raspberry-pi"]="/home/pi/scripts"
+)
+
+# Extract hosts from ssh config
+if command -v rg &> /dev/null; then
+    HOSTS=$(rg '^Host ' ~/.ssh/config 2>/dev/null | rg -v '\*' | awk '{print $2}')
+else
+    HOSTS=$(grep '^Host ' ~/.ssh/config 2>/dev/null | grep -v '*' | awk '{print $2}')
+fi
+
+# Prepend the Quick Connect option
+if [[ -z "$HOSTS" ]]; then
+    HOSTS="[Quick Connect]"
+else
+    HOSTS="[Quick Connect]
+$HOSTS"
+fi
+
+# FZF Interface
+FZF_OUT=$(echo "$HOSTS" | fzf \
+    --prompt="⚡ SSH Host > " \
+    --pointer="▶" \
+    --layout=reverse \
+    --border=none \
+    --color="prompt:#8aadf4,pointer:#f38ba8,hl:#f38ba8,hl+:#f38ba8,bg:-1,bg+:-1,gutter:-1,info:-1" \
+    --margin=1%,2% \
+    --expect=ctrl-v,enter)
+
+# Parse FZF output
+KEY=$(echo "$FZF_OUT" | head -n1)
+SELECTED=$(echo "$FZF_OUT" | tail -n1)
+
+# Exit if cancelled
+if [[ -z "$SELECTED" || "$SELECTED" == "$KEY" ]]; then
+    exit 0
+fi
+
+# Function to safely launch VSCode via Tmux background shell
+launch_vscode() {
+    local host="$1"
+    local target_path="$2"
+    
+    echo "Attempting to launch VSCode..." >> "$LOG_FILE"
+    echo "Host: $host | Path: ${target_path:-None}" >> "$LOG_FILE"
+    
+    if [[ -n "$target_path" ]]; then
+        # Use Tmux's native background shell to bypass the popup lifecycle completely
+        tmux run-shell -b "code --folder-uri 'vscode-remote://ssh-remote+${host}${target_path}'"
+        echo "Launched via folder-uri" >> "$LOG_FILE"
+    else
+        # If no path is provided, use the remote flag to open an empty workspace
+        tmux run-shell -b "code --remote 'ssh-remote+${host}'"
+        echo "Launched via remote flag" >> "$LOG_FILE"
+    fi
+}
+
+# ==========================================
+# Handle "Quick Connect" Temporary Hosts
+# ==========================================
+if [[ "$SELECTED" == "[Quick Connect]" ]]; then
+    echo -e "\n⚡ \033[1;35mQuick Connect\033[0m"
+    read -r -p "Enter user@host (e.g., root@192.168.1.10): " QC_HOST
+    
+    if [[ -z "$QC_HOST" ]]; then
+        exit 0
+    fi
+    
+    read -r -p "Enter keyfile path (leave empty for password): " QC_KEY
+    
+    if [[ "$KEY" == "ctrl-v" ]]; then
+        read -r -p "Enter absolute path to open (leave empty to just connect): " TARGET_PATH
+        [[ -n "$TARGET_PATH" && "$TARGET_PATH" != /* ]] && TARGET_PATH="/${TARGET_PATH}"
+        
+        launch_vscode "$QC_HOST" "$TARGET_PATH"
+    else
+        if [[ -n "$QC_KEY" ]]; then
+            tmux new-window -n "ssh-tmp" "ssh -i $QC_KEY $QC_HOST"
+        else
+            tmux new-window -n "ssh-tmp" "ssh $QC_HOST"
+        fi
+    fi
+    exit 0
+fi
+
+# ==========================================
+# Handle Standard Configured Hosts
+# ==========================================
+case "$KEY" in
+    ctrl-v)
+        TARGET_PATH="${VSCODE_PATHS[$SELECTED]}"
+        
+        if [[ -z "$TARGET_PATH" ]]; then
+            echo -e "\n🌐 Host: \033[1;36m${SELECTED}\033[0m"
+            read -r -p "Enter absolute path (leave empty to just connect): " TARGET_PATH
+        fi
+        
+        [[ -n "$TARGET_PATH" && "$TARGET_PATH" != /* ]] && TARGET_PATH="/${TARGET_PATH}"
+        
+        launch_vscode "$SELECTED" "$TARGET_PATH"
+        ;;
+    *)
+        tmux new-window -n "ssh-${SELECTED}" "ssh ${SELECTED}"
+        ;;
+esac

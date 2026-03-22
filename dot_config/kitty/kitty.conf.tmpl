@@ -1,0 +1,105 @@
+# Font
+font_family      JetBrainsMono Nerd Font
+bold_font        auto
+italic_font      auto
+bold_italic_font auto
+{{- if eq .chezmoi.os "darwin" }}
+font_size 13.0
+{{- else }}
+font_size 10.0
+{{- end }}
+
+# Cursor
+cursor_shape block
+cursor_blink_interval 0
+
+# Mouse & Selection
+mouse_hide_wait -1.0
+copy_on_select yes
+strip_trailing_spaces smart
+
+# URLs & Hints
+# Ctrl+Click to open URL natively
+mouse_map ctrl+left click ungrabbed mouse_handle_click selection link prompt
+url_prefixes file ftp ftps gemini git gopher http https irc ircs kitty mailto news sftp ssh
+
+# Scrollback (Handled by Tmux)
+scrollback_lines 0
+
+# Window
+hide_window_decorations yes
+window_padding_width 10
+background_opacity 0.65
+background_blur 1
+
+{{- if eq .chezmoi.os "darwin" }}
+macos_titlebar_color background
+macos_option_as_alt yes
+{{- end }}
+
+# Shell
+term xterm-kitty
+shell tmux new-session -A -s general
+
+# Keybindings
+clear_all_shortcuts no
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS Bindings
+map cmd+shift+c copy_to_clipboard
+map cmd+shift+t new_os_window
+map cmd+plus change_font_size all +2.0
+map cmd+minus change_font_size all -2.0
+map cmd+0 change_font_size all 0
+map cmd+shift+u open_url_with_hints
+map cmd+shift+space show_scrollback
+{{- else }}
+# Linux Bindings
+map ctrl+shift+c copy_to_clipboard
+map ctrl+shift+t new_os_window
+map ctrl+plus change_font_size all +2.0
+map ctrl+minus change_font_size all -2.0
+map ctrl+0 change_font_size all 0
+map ctrl+shift+u open_url_with_hints
+map ctrl+shift+space show_scrollback
+{{- end }}
+
+# Scrolling Keys
+map shift+page_up scroll_page_up
+map shift+page_down scroll_page_down
+map shift+home scroll_home
+map shift+end scroll_end
+
+# Theme: Catppuccin Macchiato
+foreground              #CAD3F5
+background              #24273A
+selection_foreground    #24273A
+selection_background    #F4DBD6
+cursor                  #F4DBD6
+cursor_text_color       #24273A
+url_color               #F4DBD6
+active_border_color     #B7BDF8
+inactive_border_color   #6E738D
+bell_border_color       #EED49F
+active_tab_foreground   #11111B
+active_tab_background   #C6A0F6
+inactive_tab_foreground #CAD3F5
+inactive_tab_background #1E2030
+tab_bar_background      #11111B
+
+color0 #494D64
+color8 #5B6078
+color1 #ED8796
+color9 #ED8796
+color2  #A6DA95
+color10 #A6DA95
+color3  #EED49F
+color11 #EED49F
+color4  #8AADF4
+color12 #8AADF4
+color5  #F5BDE6
+color13 #F5BDE6
+color6  #8BD5CA
+color14 #8BD5CA
+color7  #B8C0E0
+color15 #A5ADCB

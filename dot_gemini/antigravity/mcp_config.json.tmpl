@@ -1,0 +1,104 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {}
+    },
+    "tavily": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tavily-mcp@0.2.3"
+      ],
+      "env": {
+        "TAVILY_API_KEY": "{{ (keepassxc "tavily-api-key").Password }}"
+      },
+      "disabledTools": [
+        "tavily-map"
+      ]
+    },
+    "Ref": {
+      "command": "npx",
+      "args": [
+        "ref-tools-mcp@latest"
+      ],
+      "env": {
+        "REF_API_KEY": "{{ (keepassxc "ref-api-key").Password }}"
+      }
+    },
+    "package-registry": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "package-registry-mcp"
+      ],
+      "env": {},
+      "disabledTools": [
+        "get-npm-package-details",
+        "list-npm-package-versions",
+        "search-npm-packages",
+        "list-golang-package-versions",
+        "get-golang-package-details",
+        "list-cargo-package-versions",
+        "search-cargo-packages",
+        "get-cargo-package-details"
+      ]
+    },
+    "deepwiki": {
+      "serverUrl": "https://mcp.deepwiki.com/sse"
+    },
+    "github-mcp-server": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ (keepassxc "gh_cr_pat").Password }}"
+      },
+      "disabledTools": [
+        "add_comment_to_pending_review",
+        "add_issue_comment",
+        "assign_copilot_to_issue",
+        "create_or_update_file",
+        "create_repository",
+        "create_branch",
+        "delete_file",
+        "fork_repository",
+        "get_latest_release",
+        "get_label",
+        "get_me",
+        "get_release_by_tag",
+        "get_tag",
+        "get_team_members",
+        "get_teams",
+        "list_tags",
+        "merge_pull_request",
+        "push_files",
+        "request_copilot_review",
+        "search_users",
+        "sub_issue_write",
+        "update_pull_request_branch",
+        "update_pull_request"
+      ],
+      "disabled": false
+    },
+    "sentry": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-sentry",
+        "--auth-token",
+        "{{ (keepassxc "sentry-token").Password }}"
+      ],
+      "disabled": true
+    }
+  }
+}

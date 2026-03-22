@@ -1,0 +1,206 @@
+# ============
+# General
+# ============
+
+# Prefix
+set -g prefix C-a
+unbind C-b
+bind C-a send-prefix
+
+# Mouse mode
+set -g mouse on
+unbind -T copy-mode-vi MouseDragEnd1Pane # don't exit copy mode when dragging with mouse
+
+# History limit
+set -g history-limit 1000000
+
+# Change indexing to 1
+set -g base-index 1
+setw -g pane-base-index 1
+set-option -g renumber-windows on
+
+# Address vim mode switching delay
+set -s escape-time 0
+
+# Increase tmux messages display duration from 750ms to 1.5s
+set -g display-time 1500
+
+# Pane
+set -g pane-active-border-style 'fg=magenta,bg=default'
+set -g pane-border-style 'fg=brightblack,bg=default'
+
+# Display
+set -g default-terminal "tmux-256color"
+set -ag terminal-overrides ",xterm-256color:RGB"
+
+# ============
+# Plugins
+# ============
+
+# Plugin Manager
+set -g @plugin 'tmux-plugins/tpm'
+
+# Theme
+set -g @catppuccin_flavor 'macchiato'
+set -g @catppuccin_window_left_separator ""
+set -g @catppuccin_window_right_separator " "
+set -g @catppuccin_window_middle_separator " █"
+set -g @catppuccin_window_status_style "rounded"
+set -g @catppuccin_window_number_position "right"
+set -g @catppuccin_window_default_fill "number"
+set -g @catppuccin_window_default_text " #W"
+set -g @catppuccin_window_current_fill "number"
+set -g @catppuccin_window_current_text "#W#{?window_zoomed_flag,(),}"
+set -g @catppuccin_window_text " #W"
+set -g @catppuccin_status_modules_right "directory"
+set -g @catppuccin_status_modules_left "session"
+set -g @catppuccin_status_left_separator  " "
+set -g @catppuccin_status_right_separator " "
+set -g @catppuccin_status_right_separator_inverse "no"
+set -g @catppuccin_status_fill "icon"
+set -g @catppuccin_status_connect_separator "no"
+set -g @catppuccin_directory_text "#{b:pane_current_path}"
+run ~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux
+
+# Clipboard
+set -g @plugin 'tmux-plugins/tmux-yank'
+set-window-option -g mode-keys vi
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+
+# Navigation
+set -g @plugin 'christoomey/vim-tmux-navigator'
+
+is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
+    | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
+
+bind-key -n 'C-h' if-shell "$is_vim" 'send-keys C-h' 'select-pane -L'
+bind-key -n 'C-j' if-shell "$is_vim" 'send-keys C-j' 'select-pane -D'
+bind-key -n 'C-k' if-shell "$is_vim" 'send-keys C-k' 'select-pane -U'
+bind-key -n 'C-l' if-shell "$is_vim" 'send-keys C-l' 'select-pane -R'
+
+# Session Management
+set -g @plugin 'omerxx/tmux-sessionx'
+set -g @sessionx-bind 'o' # Press Prefix + o to open the session manager
+set -g @sessionx-zoxide-mode 'on'
+set -g @sessionx-window-height '85%'
+set -g @sessionx-window-width '75%'
+set -g @sessionx-filter-current 'false'
+
+# Floating Terminal Pane
+set -g @plugin 'omerxx/tmux-floax'
+set -g @floax-bind 'p' # Press Prefix + p to toggle the floating terminal
+set -g @floax-width '80%'
+set -g @floax-height '80%'
+set -g @floax-border-color 'magenta'
+set -g @floax-text-color 'blue'
+set -g @floax-change-path 'true'
+
+# Extrakto (Fuzzy find and copy text on screen)
+set -g @plugin 'laktak/extrakto'
+set -g @extrakto_split_direction 'v' # Opens the menu vertically at the bottom
+set -g @extrakto_split_size '15'     # Keeps the menu small and unobtrusive
+
+# tmux-fzf
+set -g @plugin 'sainnhe/tmux-fzf'
+set-environment -g TMUX_FZF_OPTIONS "-p -w 62% -h 38% -m"
+
+# tmux-fzf-url
+set -g @plugin 'wfxr/tmux-fzf-url'
+set -g @fzf-url-fzf-options '-p 60%,30% --prompt="   " --border-label=" Open URL "'
+set -g @fzf-url-history-limit '2000'
+
+# Tmux-Thumbs (Vimium-style quick copy)
+set -g @plugin 'fcsonline/tmux-thumbs'
+set -g @thumbs-key f
+{{- if eq .chezmoi.os "darwin" }}
+set -g @thumbs-command 'echo -n {} | pbcopy'
+{{- else }}
+set -g @thumbs-command 'echo -n {} | wl-copy || echo -n {} | xclip -selection clipboard'
+{{- end }}
+
+# Help (which-key)
+set -g @plugin 'alexwforsythe/tmux-which-key'
+
+# Save and restore tmux sessions
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @continuum-restore 'on'
+
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+run '~/.tmux/plugins/tpm/tpm'
+
+# Status settings
+set -g status-left-length 100
+set -g status-right-length 100
+
+# ==========================
+# App Launchers
+# ==========================
+
+# Lazygit
+bind g display-popup -E -w 90% -h 90% -d "#{pane_current_path}" "lazygit"
+bind M-g new-window -n "gh-dash" -c "#{pane_current_path}" "lazygit"
+
+# Lazydocker
+bind d display-popup -E -w 90% -h 90% "lazydocker"
+bind M-d new-window -n "lazydocker" "lazydocker"
+
+# gh-dash
+bind D display-popup -E -w 90% -h 90% -d "#{pane_current_path}" "gh dash"
+bind M-D new-window -n "gh-dash" -c "#{pane_current_path}" "gh dash"
+
+# SSH Host Selector
+bind S display-popup -b rounded -S fg=magenta -T " [↵] Terminal | [^v] VSCode " -E -w 40% -h 50% "$HOME/.config/tmux/scripts/ssh-jumper.sh"
+
+# Roborev
+bind v display-popup -E -w 90% -h 90% -d "#{pane_current_path}" "roborev tui"
+bind M-v new-window -n "roborev" -c "#{pane_current_path}" "roborev tui"
+
+# IDE/Editor Selector Menu
+{{- $zed := "zeditor" }}
+{{- if eq .chezmoi.os "darwin" }}
+{{- $zed = "zed" }}
+{{- end }}
+bind O display-menu -T " Open Workspace in: " \
+  "VSCode" v "run-shell 'code #{pane_current_path}'" \
+  "Zed" z "run-shell '{{ $zed }} #{pane_current_path}'" \
+  "Neovim" n "new-window -c '#{pane_current_path}' 'nvim .'" \
+  "OpenCode" o "run-shell 'opencode #{pane_current_path}'"
+
+# Dynamic Project Jumper
+bind -n M-j display-popup -b rounded -S fg=magenta -T " [↵] Workspace | [^v] VSCode | [^z] Zed | [^n] Neovim | [^o] OpenCode " -E -w 70% -h 70% "$HOME/.config/tmux/scripts/project-jumper.sh"
+
+# ============
+# Key Bindings
+# ============
+
+# Splitting
+unbind %
+bind | split-window -h -c "#{pane_current_path}"
+unbind '"'
+bind - split-window -v -c "#{pane_current_path}"
+
+# Window Switching
+bind -n S-Left  previous-window
+bind -n S-Right next-window
+
+# Pane Resize
+bind -n M-Left resize-pane -L 10
+bind -n M-Down resize-pane -D 5
+bind -n M-Up resize-pane -U 5
+bind -n M-Right resize-pane -R 10
+
+# Reset pane layout to an even grid
+bind = select-layout tiled
+
+# Toggle pane synchronization
+bind e set-window-option synchronize-panes \; display-message "Synchronize-Panes #{?pane_synchronized,ON,OFF}"
+
+# Misc
+set -g allow-rename off
+set-option -g detach-on-destroy off
+
+# Config Reload
+bind r source-file ~/.config/tmux/tmux.conf \; display-message "Tmux Config Reloaded!"

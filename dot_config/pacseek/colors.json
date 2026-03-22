@@ -1,0 +1,15 @@
+{
+  "Transparent": true,
+  "Accent": "c6a0f6",
+  "Title": "8aadf4",
+  "SearchBar": "363a4f",
+  "PackagelistSourceRepository": "a6da95",
+  "PackagelistSourceAUR": "8aadf4",
+  "PackagelistHeader": "eed49f",
+  "SettingsFieldBackground": "363a4f",
+  "SettingsFieldText": "cad3f5",
+  "SettingsFieldLabel": "eed49f",
+  "SettingsDropdownNotSelected": "5b6078",
+  "StylePKGBUILD": "dracula",
+  "Comments": "Using Catppuccin Macchiato hex codes. PKGBUILD uses dracula as chroma does not natively support catppuccin."
+}

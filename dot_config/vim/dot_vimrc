@@ -1,0 +1,66 @@
+" --- Numbers & UI ---
+" Add line numbers and relative numbers (hybrid mode)
+set number
+set relativenumber
+
+" Highlight the current line
+set cursorline
+
+" Enable true color support for modern terminal themes
+set termguicolors
+set background=dark
+
+" --- Core & Behavior ---
+" Disable compatibility with vi
+set nocompatible
+
+" Enable type file detection, plugins, and indent
+filetype plugin indent on
+
+" Turn syntax highlighting on
+syntax on
+
+" --- Tabs & Indentation ---
+" Set shift width and tab width to 4 (Standard)
+set shiftwidth=4
+set tabstop=4
+set expandtab
+set smartindent
+set autoindent
+
+" --- File Saving & History ---
+" Do not save backup or swap files
+set nobackup
+set noswapfile
+
+" Set the commands to save in history
+set history=1000
+
+" --- Scrolling & Mouse ---
+" Keep cursor 10 lines away from top/bottom when scrolling
+set scrolloff=10
+set mouse=a
+" set nowrap
+
+" --- Search ---
+set incsearch
+set ignorecase
+set smartcase
+set hlsearch
+
+" Double-tap Escape to instantly clear search highlights
+nnoremap <Esc><Esc> :nohlsearch<CR><Esc>
+
+" --- Display ---
+set showcmd
+set showmode
+set showmatch
+
+" --- Splits ---
+" Open new split panes to right and bottom (more natural)
+set splitbelow
+set splitright
+
+" --- Clipboard ---
+" Use the system clipboard for yanking and pasting
+set clipboard=unnamedplus

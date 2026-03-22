@@ -1,0 +1,32 @@
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      // Vim/Tmux-style split pane navigation
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      
+      // Toggle Terminal easily
+      "ctrl-`": "workspace::ToggleBottomDock"
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-tab": "pane::ActivatePreviousItem",
+      "ctrl-tab": "pane::ActivateNextItem"
+    }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      // Ensure Tmux bindings still work to escape the terminal pane
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown"
+    }
+  }
+]

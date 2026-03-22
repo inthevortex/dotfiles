@@ -1,0 +1,117 @@
+{
+  "ide": {
+    "hasSeenNudge": true,
+    "enabled": true
+  },
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "trust": true
+    },
+    "tavily": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tavily-mcp@0.2.3"
+      ],
+      "env": {
+        "TAVILY_API_KEY": "{{ (keepassxc "tavily-api-key").Password }}"
+      },
+      "excludeTools": [
+        "tavily-map"
+      ],
+      "trust": true
+    },
+    "Ref": {
+      "command": "npx",
+      "args": [
+        "ref-tools-mcp@latest"
+      ],
+      "env": {
+        "REF_API_KEY": "{{ (keepassxc "ref-api-key").Password }}"
+      },
+      "trust": true
+    },
+    "package-registry": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "package-registry-mcp"
+      ],
+      "excludeTools": [
+        "get-npm-package-details",
+        "list-npm-package-versions",
+        "search-npm-packages",
+        "list-golang-package-versions",
+        "get-golang-package-details",
+        "list-cargo-package-versions",
+        "search-cargo-packages",
+        "get-cargo-package-details"
+      ]
+    },
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/sse",
+      "trust": true
+    },
+    "github-mcp-server": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{{ (keepassxc "gh_cr_pat").Password }}"
+      },
+      "excludeTools": [
+        "add_comment_to_pending_review",
+        "add_issue_comment",
+        "assign_copilot_to_issue",
+        "create_or_update_file",
+        "create_repository",
+        "create_branch",
+        "delete_file",
+        "fork_repository",
+        "get_latest_release",
+        "get_label",
+        "get_me",
+        "get_release_by_tag",
+        "get_tag",
+        "get_team_members",
+        "get_teams",
+        "list_tags",
+        "merge_pull_request",
+        "push_files",
+        "request_copilot_review",
+        "search_users",
+        "sub_issue_write",
+        "update_pull_request_branch",
+        "update_pull_request"
+      ],
+      "trust": true
+    }
+  },
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "ui": {
+    "theme": "Default",
+    "showCitations": true
+  },
+  "general": {
+    "previewFeatures": true,
+    "preferredEditor": "vscode"
+  },
+  "output": {
+    "format": "text"
+  }
+}

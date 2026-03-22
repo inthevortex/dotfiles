@@ -1,1 +1,5 @@
 README.md
+
+{{- if not (or (eq .osid "arch") (eq .osid "cachyos") (eq .osid "endeavouros")) }}
+.config/pacseek
+{{- end }}

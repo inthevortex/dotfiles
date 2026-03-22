@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+# Ensure popup has access to all your installed tools
+{{- if eq .chezmoi.os "darwin" }}
+export PATH=$PATH:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin
+{{- else }}
+export PATH=$PATH:$HOME/.local/bin:/usr/local/bin:/usr/bin
+{{- end }}
+
+# Define OS specific binaries
+{{- if eq .chezmoi.os "darwin" }}
+ZED_CMD="zed"
+{{- else }}
+ZED_CMD="zeditor"
+{{- end }}
+
+# Define base directories
+SEARCH_DIRS=(
+    "$HOME/Code/Work"
+    "$HOME/Code/Personal"
+)
+
+# Filter out non-existent directories
+VALID_DIRS=()
+for dir in "${SEARCH_DIRS[@]}"; do
+    if [[ -d "$dir" ]]; then
+        VALID_DIRS+=("$dir")
+    fi
+done
+
+# Exit if no directories exist
+if [[ ${#VALID_DIRS[@]} -eq 0 ]]; then
+    echo "Error: Directories not found."
+    read -n 1 -s -r -p "Press any key to close..."
+    exit 1
+fi
+
+# Find all Git repos and worktrees safely
+if command -v fd &> /dev/null; then
+    PROJECTS=$(fd -H -I -g ".git" -d 4 "${VALID_DIRS[@]}" -x dirname {})
+else
+    PROJECTS=$(find "${VALID_DIRS[@]}" -maxdepth 3 -name ".git" -prune -exec dirname {} \; 2>/dev/null)
+fi
+
+if [[ -z "$PROJECTS" ]]; then
+    echo "Error: No git repositories found."
+    read -n 1 -s -r -p "Press any key to close..."
+    exit 1
+fi
+
+# FZF Interface
+FZF_OUT=$(echo "$PROJECTS" | fzf \
+    --prompt="⚡ Open Project > " \
+    --pointer="▶" \
+    --layout=reverse \
+    --border=none \
+    --color="prompt:#8aadf4,pointer:#f38ba8,hl:#f38ba8,hl+:#f38ba8,bg:-1,bg+:-1,gutter:-1,info:-1" \
+    --margin=1%,2% \
+    --expect=ctrl-v,ctrl-z,ctrl-n,ctrl-o,enter)
+
+# Parse FZF output
+KEY=$(echo "$FZF_OUT" | head -n1)
+SELECTED=$(echo "$FZF_OUT" | tail -n1)
+
+# Exit if cancelled
+if [[ -z "$SELECTED" || "$SELECTED" == "$KEY" ]]; then
+    exit 0
+fi
+
+# Format session name
+RAW_NAME=$(basename "$SELECTED")
+SESSION_NAME=${RAW_NAME//./_}
+
+# If the session doesn't exist, build the workspace
+if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    # Create detached session, first window named 'term'
+    tmux new-session -d -s "$SESSION_NAME" -c "$SELECTED" -n "term"
+    
+    # Create window 2: lazygit
+    tmux new-window -t "$SESSION_NAME" -c "$SELECTED" -n "lazygit" "lazygit"
+    
+    # Create window 3: roborev
+    tmux new-window -t "$SESSION_NAME" -c "$SELECTED" -n "roborev" "roborev tui"
+    
+    # Focus back on window 1 (term)
+    tmux select-window -t "$SESSION_NAME:1"
+fi
+
+# Handle editor launch
+case "$KEY" in
+    ctrl-v)
+        nohup code "$SELECTED" >/dev/null 2>&1 &
+        ;;
+    ctrl-z)
+        nohup "$ZED_CMD" "$SELECTED" >/dev/null 2>&1 &
+        ;;
+    ctrl-n)
+        tmux send-keys -t "$SESSION_NAME:1" "nvim ." C-m
+        ;;
+    ctrl-o)
+        tmux send-keys -t "$SESSION_NAME:1" "opencode ." C-m
+        ;;
+    *)
+        ;;
+esac
+
+# Switch the active Tmux client to the newly created/found session
+tmux switch-client -t "$SESSION_NAME"

@@ -1,0 +1,80 @@
+# Theme: Catppuccin Macchiato
+background = 24273a
+foreground = cad3f5
+selection-background = 363a4f
+selection-foreground = cad3f5
+cursor-color = f4dbd6
+cursor-text = 24273a
+
+palette = 0=#494d64
+palette = 1=#ed8796
+palette = 2=#a6da95
+palette = 3=#eed49f
+palette = 4=#8aadf4
+palette = 5=#f5bde6
+palette = 6=#8bd5ca
+palette = 7=#b8c0e0
+palette = 8=#5b6078
+palette = 9=#ed8796
+palette = 10=#a6da95
+palette = 11=#eed49f
+palette = 12=#8aadf4
+palette = 13=#f5bde6
+palette = 14=#8bd5ca
+palette = 15=#a5adcb
+
+# Font
+font-family = "JetBrainsMono Nerd Font"
+{{- if eq .chezmoi.os "darwin" }}
+font-size = 13
+{{- else }}
+font-size = 10
+{{- end }}
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# Mouse & URLs
+mouse-hide-while-typing = true
+copy-on-select = true
+# Ghostty natively supports Ctrl+Click (Linux) and Cmd+Click (macOS) for URLs
+
+# Window
+window-decoration = false
+window-padding-x = 10
+window-padding-y = 10
+background-opacity = 0.65
+background-blur-radius = 20
+maximize = true
+
+{{- if eq .chezmoi.os "darwin" }}
+macos-titlebar-style = hidden
+macos-option-as-alt = true
+{{- end }}
+
+# Shell
+command = tmux new-session -A -s general
+
+# Keybindings
+{{- if eq .chezmoi.os "darwin" }}
+# macOS Bindings
+keybind = super+c=copy_to_clipboard
+keybind = super+t=new_window
+keybind = super+plus=increase_font_size:2
+keybind = super+minus=decrease_font_size:2
+keybind = super+0=reset_font_size
+{{- else }}
+# Linux Bindings
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+shift+t=new_window
+keybind = ctrl+plus=increase_font_size:2
+keybind = ctrl+minus=decrease_font_size:2
+keybind = ctrl+0=reset_font_size
+{{- end }}
+
+# Scrolling
+keybind = shift+page_down=scroll_page_down
+keybind = shift+page_up=scroll_page_up
+keybind = shift+home=scroll_to_top
+keybind = shift+end=scroll_to_bottom
