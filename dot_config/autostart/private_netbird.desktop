@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories=Utility;
+Exec=/usr/bin/netbird-ui
+Icon=netbird
+Keywords=netbird;
+Name=Netbird
+Terminal=false
+Type=Application

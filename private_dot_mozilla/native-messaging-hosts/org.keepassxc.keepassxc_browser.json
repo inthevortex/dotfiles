@@ -1,0 +1,9 @@
+{
+    "allowed_extensions": [
+        "keepassxc-browser@keepassxc.org"
+    ],
+    "description": "KeePassXC integration with native messaging support",
+    "name": "org.keepassxc.keepassxc_browser",
+    "path": "/home/inthevortex/.var/app/app.zen_browser.zen/data/keepassxc-helper",
+    "type": "stdio"
+}

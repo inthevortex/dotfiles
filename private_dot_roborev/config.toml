@@ -1,0 +1,10 @@
+server_addr = "127.0.0.1:7373"
+max_workers = 4
+review_context_count = 3
+default_agent = "opencode"
+default_model = "github-copilot/claude-sonnet-4.6"
+auto_filter_repo = true
+auto_filter_branch = true
+job_timeout_minutes = 30
+codex_cmd = "codex"
+claude_code_cmd = "claude"
