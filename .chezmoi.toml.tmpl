@@ -1,0 +1,18 @@
+{{- $os := .chezmoi.os -}}
+{{- $osID := "unknown" -}}
+
+{{- if hasKey .chezmoi.osRelease "id" -}}
+{{-   $osID = .chezmoi.osRelease.id -}}
+{{- end -}}
+
+{{- $isLaptop := promptBoolOnce . "isLaptop" "Is this a laptop (t/f)?" -}}
+
+[data]
+    os = {{ $os | quote }}
+    osid = {{ $osID | quote }}
+    isLaptop = {{ $isLaptop }}
+
+[keepassxc]
+    database = "/home/inthevortex/Documents/KeePassXC/keepass-vault/inthevortex.kdbx"
+    args = ["--key-file", "/home/inthevortex/Documents/KeePassXC/keepass-vault/inthevortex-keepass"]
+

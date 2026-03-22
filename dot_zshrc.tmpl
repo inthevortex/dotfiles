@@ -1,0 +1,177 @@
+# oh-my-zsh config
+export ZSH=$HOME/.oh-my-zsh
+ZSH_THEME=""
+plugins=(git docker docker-compose git-extras azure archlinux aws command-not-found dotnet gh poetry podman pip python bun celery chezmoi eza fzf golang helm node npm nvm snap ssh starship sudo systemd tldr tmux uv vscode z bgnotify zsh-autosuggestions zsh-syntax-highlighting)
+source $ZSH/oh-my-zsh.sh
+
+# You may need to manually set your language environment
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US:en
+
+# Define EDITOR
+export EDITOR="nvim"
+
+# Aliases
+alias v="$EDITOR"
+alias vim="$EDITOR"
+alias sv="sudo $EDITOR"
+alias svim="sudo $EDITOR"
+
+alias zconf="v ~/.zshrc"
+alias zsource="source ~/.zshrc"
+
+alias ccat="bat"
+
+alias c="wl-copy"
+
+alias ls="eza -a --icons"
+alias ll="eza -al --icons --git"
+alias lt="eza -a --tree --level=2 --long --icons --git"
+
+alias lg="lazygit"
+alias ld="lazydocker"
+
+alias bt="btop"
+
+alias fp="flatpak"
+
+# Chezmoi
+alias cz="chezmoi"
+alias czad="cz add"
+alias czcd="cz cd"
+alias cze="cz edit"
+alias czd="cz diff"
+alias czap="cz apply"
+alias czra="cz re-add"
+alias czu="cz update"
+
+# Google cloud cli
+alias gcloud="/opt/google-cloud-cli/bin/gcloud"
+
+# Pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# Poetry
+export PATH="/home/inthevortex/.local/share/pipx/venvs/poetry/bin/:$PATH"
+export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
+
+# NVM
+source /usr/share/nvm/init-nvm.sh
+
+# JetBrains Toolbox
+export PATH="$PATH:/home/inthevortex/.local/share/JetBrains/Toolbox/scripts"
+
+# Homebrew
+# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# Obsidian
+export PATH=$PATH:/usr/bin/obsidian
+
+# fzf
+eval "$(fzf --zsh)"
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow'
+export FZF_COMPLETION_TRIGGER='~~'
+export FZF_COMPLETION_OPTS='--border --info=inline'
+# Preview file content using bat (https://github.com/sharkdp/bat)
+export FZF_CTRL_T_OPTS="
+  --walker-skip .git,node_modules,target
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+# CTRL-/ to toggle small preview window to see the full command
+# CTRL-Y to copy the command into clipboard using wl-copy
+export FZF_CTRL_R_OPTS="
+  --preview 'echo {}' --preview-window up:3:hidden:wrap
+  --bind 'ctrl-/:toggle-preview'
+  --bind 'ctrl-y:execute-silent(echo -n {2..} | wl-copy)+abort'
+  --color header:italic
+  --header 'Press CTRL-Y to copy command into clipboard'"
+# Print tree structure in the preview window
+export FZF_ALT_C_OPTS="
+  --walker-skip .git,node_modules,target
+  --preview 'eza -a --tree --level=2 --icons --color=always {}'"
+
+# zoxide
+eval "$(zoxide init --cmd cd zsh)"
+
+# starship
+eval "$(starship init zsh)"
+export STARSHIP_CONFIG=~/.config/starship/starship.toml
+
+# pipx
+export PATH="/home/inthevortex/.local/bin:$PATH"
+
+# Fastfetch if on wm
+if [[ $(tty) == *"pts"* ]]; then
+    fastfetch --config examples/22
+else
+    echo
+    if [ -f /bin/hyprctl ]; then
+        echo "Start Hyprland with command Hyprland"
+    fi
+fi
+
+# Yazi
+function yy() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+	yazi "$@" --cwd-file="$tmp"
+	if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+		cd -- "$cwd"
+	fi
+	rm -f -- "$tmp"
+}
+
+# Android SDK
+export ANDROID_HOME=/home/inthevortex/Android/Sdk/
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/tools
+
+# Add .NET Core SDK tools
+export PATH="$PATH:/home/inthevortex/.dotnet/tools"
+
+# Bun tools
+export PATH="/home/inthevortex/.bun/bin:$PATH"
+
+alias cpio="sudo limine-mkinitcpio -P"
+
+# System-wide update function
+function sysupdate() {
+    echo "📦 [\e[1;34mPacman/AUR\e[0m] Updating system packages..."
+    yay --noconfirm
+
+    echo "\n📦 [\e[1;34mFlatpak\e[0m] Updating and cleaning..."
+    flatpak update && flatpak uninstall --unused -y
+
+    echo "\n📦 [\e[1;34mSnap\e[0m] Refreshing packages..."
+    sudo snap refresh
+
+    echo "\n🐍 [\e[1;33mPython\e[0m] Upgrading uv and pipx tools..."
+    uv tool upgrade --all
+    pipx upgrade-all
+
+    echo "\n🟨 [\e[1;33mNode/JS\e[0m] Upgrading global packages..."
+    npm update -g
+    pnpm update -g
+    bun update -g
+
+    echo "\n🔷 [\e[1;35m.NET\e[0m] Upgrading global tools..."
+    dotnet tool update --global --all
+
+    echo "\n🐙 [\e[1;36mGitHub\e[0m] Upgrading CLI extensions..."
+    gh extension upgrade --all
+
+    echo "\n🤖 [\e[1;32mRoborev\e[0m] Upgrading..."
+    roborev update -y
+
+    echo "\n🏠 [\e[1;32mDotfiles\e[0m] Updating via Chezmoi..."
+    chezmoi update
+
+    echo "\n✅ \e[1;32mAll system updates completed successfully!\e[0m"
+}
+
+# Load local secrets securely
+if [[ -f "$HOME/.zsecrets" ]]; then
+    source "$HOME/.zsecrets"
+fi
