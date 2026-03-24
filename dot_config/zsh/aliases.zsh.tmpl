@@ -1,0 +1,81 @@
+# =============================================================================
+# Chezmoi
+# =============================================================================
+alias cz="chezmoi"
+alias czad="cz add"
+alias czcd="cz cd"
+alias cze="cz edit"
+alias czd="cz diff"
+alias czap="cz apply"
+alias czra="cz re-add"
+alias czu="cz update"
+
+# =============================================================================
+# Editors & Files
+# =============================================================================
+alias v="$EDITOR"
+alias vim="$EDITOR"
+alias sv="sudo $EDITOR"
+alias svim="sudo $EDITOR"
+alias zconf="cze ~/.zshrc"
+alias zsource="source ~/.zshrc"
+alias ccat="bat"
+
+# =============================================================================
+# OS-Specific Commands
+# =============================================================================
+{{- if eq .chezmoi.os "darwin" }}
+alias c="pbcopy"
+{{- else }}
+# Linux
+alias c="wl-copy"
+alias fp="flatpak"
+alias cpio="sudo limine-mkinitcpio -P"
+{{- end }}
+
+# =============================================================================
+# Eza
+# =============================================================================
+alias ls="eza -a --icons --group-directories-first"
+alias ll="eza -al --icons --group-directories-first --git --header"
+alias lt="eza -a --tree --level=2 --long --icons --git --group-directories-first"
+
+# =============================================================================
+# Terminal Apps & System
+# =============================================================================
+alias lg="lazygit"
+alias ld="lazydocker"
+alias bt="btop"
+
+# =============================================================================
+# Docker
+# =============================================================================
+alias dps="docker ps --format 'table {{ "{{.ID}}" }}\t{{ "{{.Image}}" }}\t{{ "{{.Status}}" }}\t{{ "{{.Ports}}" }}\t{{ "{{.Names}}" }}'"
+alias dls="docker image ls --format 'table {{ "{{.ID}}" }}\t{{ "{{.Repository}}" }}\t{{ "{{.Tag}}" }}\t{{ "{{.Size}}" }}'"
+alias dstats="docker stats --no-stream --format 'table {{ "{{.Name}}" }}\t{{ "{{.CPUPerc}}" }}\t{{ "{{.MemUsage}}" }}\t{{ "{{.NetIO}}" }}\t{{ "{{.BlockIO}}" }}'"
+
+alias dco="docker compose"
+alias dcu="docker compose up"
+alias dcud="docker compose up -d"
+alias dcd="docker compose down"
+alias dcl="docker compose logs -f"
+alias dce="docker compose exec"
+alias dcps="docker compose ps"
+
+# =============================================================================
+# Git
+# =============================================================================
+alias g="git"
+alias ga="git add"
+alias gaa="git add --all"
+alias gc="git commit -m"
+alias gca="git commit -am"
+alias gst="git status"
+alias gd="git diff"
+alias gds="git diff --staged"
+alias gco="git checkout"
+alias gcb="git checkout -b"
+alias gp="git push"
+alias gl="git pull"
+alias grb="git rebase"
+alias glog="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all"

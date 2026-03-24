@@ -1,0 +1,111 @@
+# =============================================================================
+# Custom Zsh Functions
+# =============================================================================
+
+function yy() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}
+
+{{- if eq .chezmoi.os "linux" }}
+function sysupdate() {
+    echo "📦 [\e[1;34mPacman/AUR\e[0m] Updating system packages..."
+    yay
+
+    echo "\n📦 [\e[1;34mFlatpak\e[0m] Updating and cleaning..."
+    flatpak update && flatpak uninstall --unused -y
+
+    echo "\n📦 [\e[1;34mSnap\e[0m] Refreshing packages..."
+    sudo snap refresh
+
+    echo "\n🐍 [\e[1;33mPython\e[0m] Upgrading uv and pipx tools..."
+    uv tool upgrade --all
+    pipx upgrade-all
+
+    echo "\n🟨 [\e[1;33mNode/JS\e[0m] Upgrading global packages..."
+    npm update -g
+    pnpm update -g
+    bun update -g
+
+    echo "\n🔷 [\e[1;35m.NET\e[0m] Upgrading global tools..."
+    dotnet tool update --global --all
+
+    echo "\n🦀 [\e[1;31mRust\e[0m] Upgrading toolchain and global cargo binaries..."
+    if command -v rustup &> /dev/null; then
+        rustup update
+    fi
+    if command -v cargo-install-update &> /dev/null; then
+        cargo install-update -a
+    else
+        echo "  -> Note: 'cargo-update' not found. To enable auto-updating crates, run: cargo install cargo-update"
+    fi
+
+    echo "\n🐹 [\e[1;36mGo\e[0m] Upgrading global packages..."
+    if command -v go &> /dev/null; then
+        go version -m $(go env GOPATH)/bin/* 2>/dev/null | awk '/path/ {print $2 "@latest"}' | xargs -r go install
+    fi
+
+    echo "\n🐙 [\e[1;36mGitHub\e[0m] Upgrading CLI extensions..."
+    gh extension upgrade --all
+
+    echo "\n🤖 [\e[1;32mRoborev\e[0m] Upgrading..."
+    roborev update -y
+
+    echo "\n🏠 [\e[1;32mDotfiles\e[0m] Updating via Chezmoi..."
+    cz init
+    cz update
+
+    echo "\n✅ \e[1;32mAll system updates completed successfully!\e[0m"
+}
+
+yays() {
+    yay -Slq | fzf --multi --preview 'yay -Si {1}' | xargs -ro yay -S
+}
+
+flats() {
+    flatpak search "" --columns=application,description | fzf --multi | awk '{print $1}' | xargs -ro flatpak install -y
+}
+{{- end }}
+
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Universal Extractor with Optional Destination Path
+# Usage: ex <file> [destination_path]
+ex() {
+    if [ -z "$1" ]; then
+        echo "Usage: ex <file> [destination_path]"
+        return 1
+    fi
+    local dest="${2:-.}"
+    mkdir -p "$dest"
+
+    if [ -f "$1" ] ; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1" -C "$dest"    ;;
+            *.tar.gz)    tar xzf "$1" -C "$dest"    ;;
+            *.bz2)       cp "$1" "$dest" && bunzip2 "$dest/$(basename "$1")" ;;
+            *.rar)       unrar x "$1" "$dest"       ;;
+            *.gz)        cp "$1" "$dest" && gunzip "$dest/$(basename "$1")"  ;;
+            *.tar)       tar xf "$1" -C "$dest"     ;;
+            *.tbz2)      tar xjf "$1" -C "$dest"    ;;
+            *.tgz)       tar xzf "$1" -C "$dest"    ;;
+            *.zip)       unzip "$1" -d "$dest"      ;;
+            *.Z)         cp "$1" "$dest" && uncompress "$dest/$(basename "$1")" ;;
+            *.7z)        7z x "$1" -o"$dest"        ;;
+            *)           echo "'$1' cannot be extracted via ex()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+fnvim() {
+    local dir
+    dir=$(find ${1:-.} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf +m) && cd "$dir" && nvim .
+}
