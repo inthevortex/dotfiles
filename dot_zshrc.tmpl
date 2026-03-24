@@ -1,7 +1,7 @@
 # oh-my-zsh config
 export ZSH=$HOME/.oh-my-zsh
 ZSH_THEME=""
-plugins=(git docker docker-compose git-extras azure archlinux aws command-not-found dotnet gh poetry podman pip python bun celery chezmoi eza fzf golang helm node npm nvm snap ssh starship sudo systemd tldr tmux uv vscode z bgnotify zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(git docker docker-compose git-extras archlinux command-not-found dotnet gh poetry podman pip python bun celery chezmoi eza fzf golang helm node npm nvm snap ssh starship sudo systemd tldr tmux uv vscode z bgnotify zsh-autosuggestions zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
 
 # You may need to manually set your language environment
@@ -139,7 +139,7 @@ alias cpio="sudo limine-mkinitcpio -P"
 # System-wide update function
 function sysupdate() {
     echo "📦 [\e[1;34mPacman/AUR\e[0m] Updating system packages..."
-    yay --noconfirm
+    yay -Syyu
 
     echo "\n📦 [\e[1;34mFlatpak\e[0m] Updating and cleaning..."
     flatpak update && flatpak uninstall --unused -y
@@ -166,7 +166,8 @@ function sysupdate() {
     roborev update -y
 
     echo "\n🏠 [\e[1;32mDotfiles\e[0m] Updating via Chezmoi..."
-    chezmoi update
+    cz init
+    cz update
 
     echo "\n✅ \e[1;32mAll system updates completed successfully!\e[0m"
 }
